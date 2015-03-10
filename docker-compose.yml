@@ -51,4 +51,4 @@ web:
         - ./src:/src
     ports:
         - "80"
-    entrypoint: /start-bob-alice.sh
+    entrypoint: /run.sh

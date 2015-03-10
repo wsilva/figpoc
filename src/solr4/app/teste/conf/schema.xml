@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   generic solr schema for bob/ alice
+   author Martin Loetzsch
+   see  http://wiki.apache.org/solr/SchemaXml
+-->
+<schema name="bigfoot" version="1.5">
+    <types>
+        <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+        <fieldType name="integer" class="solr.IntField" omitNorms="true"/>
+
+        <fieldtype name="sfloat" class="solr.TrieFloatField" sortMissingLast="true" omitNorms="true"/>
+        <fieldtype name="float" class="solr.FloatField" omitNorms="true"/>
+
+        <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <filter class="solr.ASCIIFoldingFilterFactory"/>
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+                <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1"
+                        catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.BrazilianStemFilterFactory"/>
+            </analyzer>
+            <analyzer type="query">
+                <filter class="solr.ASCIIFoldingFilterFactory"/>
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true"/>
+                <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1"
+                        catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+                <filter class="solr.BrazilianStemFilterFactory"/>
+            </analyzer>
+        </fieldType>
+
+        <fieldType name="sort_field" class="solr.TextField">
+            <analyzer>
+                <tokenizer class="solr.KeywordTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory" />
+            </analyzer>
+        </fieldType>
+
+        <fieldType name="suggest_term" class="solr.TextField">
+            <analyzer>
+                <tokenizer class="solr.KeywordTokenizerFactory"/>
+            </analyzer>
+        </fieldType>
+
+        <fieldType name="suggest_term_tokenized" class="solr.TextField">
+            <analyzer>
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <filter class="solr.ASCIIFoldingFilterFactory"/>
+                <filter class="solr.LowerCaseFilterFactory" />
+            </analyzer>
+        </fieldType>
+        <fieldType name="spelltext" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.ASCIIFoldingFilterFactory"/>
+                <filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="10"/>
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.KeywordTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.ASCIIFoldingFilterFactory"/>
+            </analyzer>
+        </fieldType>
+
+        <fieldType name="boolean" class="solr.BoolField"/>
+    </types>
+
+
+    <fields>
+        <field name="sku" type="string" indexed="true" stored="true" omitNorms="true"/>
+        <field name="skus" type="text" indexed="true" multiValued="true" stored="false" omitNorms="true"/>
+        <field name="name" type="text" indexed="true" stored="false" omitNorms="true"/>
+        <field name="naoexibe_catalogo" type="string" indexed="true" stored="false" omitNorms="true"/>
+        <field name="name_sort" type="sort_field" indexed="true" stored="false" omitNorms="true"/>
+        <copyField source="name" dest="name_sort"/>
+
+        <field name="brand" type="text" indexed="true" stored="false" omitNorms="true"/>
+        <field name="brand_sort" type="sort_field" indexed="true" stored="false" omitNorms="true"/>
+        <copyField source="brand" dest="brand_sort"/>
+
+        <field name="category" type="text" indexed="true" multiValued="true" stored="false" omitNorms="true"/>
+        <field name="fulltext" type="text" indexed="true" multiValued="true" stored="false" omitNorms="true"/>
+        <field name="suggest_terms" type="suggest_term_tokenized" indexed="true"
+               multiValued="true" stored="false" omitNorms="true"/>
+        <field name="suggestions" type="suggest_term" indexed="true" multiValued="true"
+               stored="false" omitNorms="true"/>
+        <copyField source="suggest_terms" dest="suggestions"/>
+        <field name="activated_at" type="string" indexed="true" stored="false" omitNorms="false"/>
+        <field name="facet_price" type="sfloat" indexed="true" stored="false" omitNorms="false"/>
+        <field name="facet_rating" type="sfloat" indexed="true" stored="false" omitNorms="false"/>
+        <field name="facet_bundle" type="boolean" indexed="true" stored="true" default="0"/>
+        <field name="facet_has_gift" type="boolean" indexed="true" stored="true" default="0"/>
+        <field name="textSpell" type="spelltext" stored="false" indexed="true" multiValued="true" />
+        <copyField source="fulltext" dest="textSpell" />
+        <copyField source="brand" dest="textSpell" />
+        <copyField source="category" dest="textSpell" />
+        <copyField source="name" dest="textSpell" />
+
+        <dynamicField name="score_*" type="float" indexed="true" stored="true" multiValued="false" omitNorms="true"/>
+        <dynamicField name="facet_*" type="string" indexed="true" stored="false" multiValued="true" omitNorms="true"/>
+    </fields>
+
+    <uniqueKey>sku</uniqueKey>
+    <solrQueryParser defaultOperator="AND"/>
+    <defaultSearchField>sku</defaultSearchField>
+</schema>
+

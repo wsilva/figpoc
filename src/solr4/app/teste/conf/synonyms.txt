@@ -1,0 +1,31 @@
+###################################################################
+#
+# Synonym file. Synonym format is:
+# synonym, synonym, synonym => final-word
+# Where "final-word" is the word that will be replaced when of the
+# given synonyms are given on a search.
+#
+# More details on:
+# http://wiki.apache.org/solr/AnalyzersTokenizersTokenFilters
+#
+# %% Notes
+# - Apostrophes (') are ignored, so, it's not needed as a synonym.
+# - This file is organized alphabetically by the "final-word" word.
+#
+###################################################################
+################
+#### MARCAS ####
+################
+
+adydas => adidas
+alini, aline, alene => aliny
+bi repe, by repe, bee rappy, bi happy, bee hapy => Bee Happy
+
+
+####################
+#### CATEGORIAS ####
+####################
+
+babuxes => babuches
+bolcas, bousas, bolssas => bolsas
+calcado, caucado, caucado => calcado
