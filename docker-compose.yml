@@ -1,0 +1,54 @@
+proxy:
+    build: ./proxy
+    volumes:
+        - /var/run/docker.sock:/tmp/docker.sock
+    ports:
+        - "80:80"
+redis:
+    build: ./redis
+    privileged: true
+    volumes:
+        - ./redis:/data
+    ports:
+        - "6379:6379"
+    entrypoint: redis-server
+rabbit:
+    image: tutum/rabbitmq
+    environment:
+        - RABBITMQ_PASS=teste
+    ports:
+        - "5672:5672"
+        - "15672:15672"
+solr:
+    build: ./solr
+    privileged: true
+    volumes:
+        - ./src/solr:/src/solr
+    ports:
+        - "8983:8983"
+    entrypoint: /start-solr.sh
+mysql:
+    build: ./mysql
+    privileged: true
+    ports:
+        - "3306:3306"
+    environment:
+        - MYSQL_ROOT_PASSWORD=teste
+        - MYSQL_USER=teste
+        - MYSQL_PASSWORD=teste
+        - MYSQL_DATABASE=teste_db
+web:
+    build: ./web
+    environment:
+        - VIRTUAL_HOST=teste.dev
+    links:
+        - redis:redis
+        - rabbit:rabbit
+        - solr:solr
+        - mysql:mysql
+    privileged: true
+    volumes:
+        - ./src:/src
+    ports:
+        - "80"
+    entrypoint: /start-bob-alice.sh
